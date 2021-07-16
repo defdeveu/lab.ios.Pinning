@@ -23,6 +23,7 @@ struct lab_ios_PinningApp: App {
             NavigationView {
                 ContentView()
             }
+            .navigationViewStyle(.stack)
         }
     }
 }

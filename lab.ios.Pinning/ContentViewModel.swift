@@ -19,8 +19,7 @@ class ContentViewModel: ObservableObject {
 
 extension ContentViewModel {
     func plainTextConnection() {
-        requestProgress = "Downloading plain text connection..."
-        process(url: "http://3.127.138.254/success.html")
+        requestProgress = "As calls to plain http in form 'http://3.127.138.254' cannot be catched by ATS (NSAppTransportSecurity) we have to remove such urls."
     }
     
     func osStoreConnection() {

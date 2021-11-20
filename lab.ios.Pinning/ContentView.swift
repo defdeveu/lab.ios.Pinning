@@ -37,11 +37,15 @@ struct ContentView: View {
                 Text("Retrieved URL:")
                     .font(.title3)
                     .foregroundColor(AppColors.textTitle)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(viewModel.requestUrl ?? "-")
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("Retrieved content:")
                     .font(.title3)
                     .foregroundColor(AppColors.textTitle)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(viewModel.requestProgress ?? "-")
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

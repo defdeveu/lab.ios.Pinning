@@ -14,6 +14,8 @@
 		FA24066927494B7600583244 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066627494B7600583244 /* ContentViewModel.swift */; };
 		FA24066B27494B7600583244 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066827494B7600583244 /* NetworkService.swift */; };
 		FA24066D2749580300583244 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066C2749580300583244 /* Utils.swift */; };
+		FA24066F27496B0000583244 /* SessionPinningDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066E27496B0000583244 /* SessionPinningDelegate.swift */; };
+		FA24067327497BA500583244 /* certificate.der in Resources */ = {isa = PBXBuildFile; fileRef = FA24067227497BA500583244 /* certificate.der */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		FA24066727494B7600583244 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FA24066827494B7600583244 /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		FA24066C2749580300583244 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		FA24066E27496B0000583244 /* SessionPinningDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPinningDelegate.swift; sourceTree = "<group>"; };
+		FA24067227497BA500583244 /* certificate.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = certificate.der; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,7 +67,9 @@
 				FA24066627494B7600583244 /* ContentViewModel.swift */,
 				FA24065827494ABF00583244 /* lab_ios_PinningApp.swift */,
 				FA24066827494B7600583244 /* NetworkService.swift */,
+				FA24066E27496B0000583244 /* SessionPinningDelegate.swift */,
 				FA24066C2749580300583244 /* Utils.swift */,
+				FA24067227497BA500583244 /* certificate.der */,
 				FA24065C27494AC200583244 /* Assets.xcassets */,
 				FA24065E27494AC300583244 /* Preview Content */,
 			);
@@ -137,6 +143,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA24066027494AC300583244 /* Preview Assets.xcassets in Resources */,
+				FA24067327497BA500583244 /* certificate.der in Resources */,
 				FA24065D27494AC200583244 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,6 +158,7 @@
 				FA24065B27494ABF00583244 /* ContentView.swift in Sources */,
 				FA24065927494ABF00583244 /* lab_ios_PinningApp.swift in Sources */,
 				FA24066B27494B7600583244 /* NetworkService.swift in Sources */,
+				FA24066F27496B0000583244 /* SessionPinningDelegate.swift in Sources */,
 				FA24066927494B7600583244 /* ContentViewModel.swift in Sources */,
 				FA24066D2749580300583244 /* Utils.swift in Sources */,
 			);

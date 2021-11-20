@@ -10,7 +10,7 @@ class ContentViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     private let networkService: NetworkServiceProtocol
     
-    init(networkService: NetworkServiceProtocol = NetworkService()) {
+    init(networkService: NetworkServiceProtocol = AppRepository.shared.networkService) {
         self.networkService = networkService
     }
 }
@@ -19,6 +19,7 @@ class ContentViewModel: ObservableObject {
 
 extension ContentViewModel {
     func plainTextConnection() {
+        requestUrl = "http://3.127.138.254/success.html"
         requestProgress = "As calls to plain http in form 'http://3.127.138.254' cannot be catched by ATS (NSAppTransportSecurity) we have to remove such urls."
     }
     

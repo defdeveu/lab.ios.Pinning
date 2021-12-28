@@ -13,11 +13,11 @@ struct SolidButtonStyle: ButtonStyle {
                 .minimumScaleFactor(0.5)
             Spacer()
         }
-        .foregroundColor(AppColors.button)
+        .foregroundColor(AppColors.buttonText)
         .font(.headline)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(AppColors.button, lineWidth: 2)
+                .stroke(AppColors.buttonOverlay, lineWidth: 2)
         )
         .opacity(configuration.isPressed ? 0.8 : 1.0)
         .padding([.top, .bottom], 8)
@@ -28,9 +28,13 @@ struct SolidButtonStyle: ButtonStyle {
 
 struct AppColors {
     private init() {}
+    // TODO color scheme dependency
     
-    static let navigationBackground = UIColor(named: "NavigationBkgdColor") ?? .black
-    static let navigationForeground = UIColor(named: "NavigationFrgdColor") ?? .white
-    static let button = Color(UIColor(named: "ButtonColor") ?? .black)
+    static let navigationBackground = Color(UIColor(named: "NavigationBkgdColor") ?? .black)
+    static let navigationForeground = Color(UIColor(named: "NavigationFrgdColor") ?? .orange)
+    static let buttonBackground = Color(UIColor(named: "ButtonColor") ?? .black)
+    static let buttonOverlay = Color(UIColor(named: "ButtonOverlayColor") ?? .orange)
+    static let buttonText = Color(UIColor(named: "ButtonTextColor") ?? .white)
     static let textTitle = Color(UIColor(named: "TextTitleColor") ?? .black)
+    static let textOutput = Color(UIColor(named: "TextOutputColor") ?? .black)
 }

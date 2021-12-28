@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FA24065527494ABF00583244 /* lab.ios.Pinning.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = lab.ios.Pinning.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA24065527494ABF00583244 /* Pinning lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pinning lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA24065827494ABF00583244 /* lab_ios_PinningApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lab_ios_PinningApp.swift; sourceTree = "<group>"; };
 		FA24065A27494ABF00583244 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FA24065C27494AC200583244 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -50,7 +50,7 @@
 		FA24065627494ABF00583244 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FA24065527494ABF00583244 /* lab.ios.Pinning.app */,
+				FA24065527494ABF00583244 /* Pinning lab.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,7 +95,7 @@
 			);
 			name = lab.ios.Pinning;
 			productName = lab.ios.Pinning;
-			productReference = FA24065527494ABF00583244 /* lab.ios.Pinning.app */;
+			productReference = FA24065527494ABF00583244 /* Pinning lab.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -297,7 +297,7 @@
 				);
 				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = "defdev.lab-ios-Pinning";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Pinning lab";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -326,7 +326,7 @@
 				);
 				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = "defdev.lab-ios-Pinning";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Pinning lab";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

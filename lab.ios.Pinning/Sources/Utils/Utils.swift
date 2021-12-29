@@ -26,8 +26,7 @@ struct SolidButtonStyle: ButtonStyle {
 
 // MARK: - Colors
 
-struct AppColors {
-    private init() {}
+enum AppColors {
     // TODO color scheme dependency
     
     static let navigationBackground = Color(UIColor(named: "NavigationBkgdColor") ?? .black)
@@ -37,4 +36,17 @@ struct AppColors {
     static let buttonText = Color(UIColor(named: "ButtonTextColor") ?? .white)
     static let textTitle = Color(UIColor(named: "TextTitleColor") ?? .black)
     static let textOutput = Color(UIColor(named: "TextOutputColor") ?? .black)
+}
+
+// MARK: - Strings
+
+enum AppStrings {
+    static let appTitle = "PINNING LAB"
+}
+
+// MARK: - Images
+
+enum AppImages {
+    static let navigationImage = UIImage(named: "bg-banner.ddd.2108.dark")
+    static let appTitleImage = Image("logo.ddd.stamp.1905")
 }

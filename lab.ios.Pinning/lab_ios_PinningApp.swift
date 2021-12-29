@@ -6,7 +6,7 @@ struct lab_ios_PinningApp: App {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(AppColors.navigationBackground)
-        appearance.backgroundImage = UIImage(named: "bg-banner.ddd.2108.dark")
+        appearance.backgroundImage = AppImages.navigationImage
 
         let attrs: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor(AppColors.navigationForeground)

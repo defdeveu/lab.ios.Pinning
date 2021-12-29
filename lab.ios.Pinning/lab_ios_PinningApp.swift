@@ -5,10 +5,11 @@ struct lab_ios_PinningApp: App {
     init() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = AppColors.navigationBackground
+        appearance.backgroundColor = UIColor(AppColors.navigationBackground)
+        appearance.backgroundImage = AppImages.navigationImage
 
         let attrs: [NSAttributedString.Key: Any] = [
-            .foregroundColor: AppColors.navigationForeground
+            .foregroundColor: UIColor(AppColors.navigationForeground)
         ]
 
         appearance.largeTitleTextAttributes = attrs
@@ -24,6 +25,7 @@ struct lab_ios_PinningApp: App {
                 ContentView()
             }
             .navigationViewStyle(.stack)
+            .preferredColorScheme(.dark)
         }
     }
 }

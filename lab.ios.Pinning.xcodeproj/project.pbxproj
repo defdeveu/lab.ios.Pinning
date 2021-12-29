@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA1DA00B277CABCB0045D9C0 /* AppRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1DA00A277CABCB0045D9C0 /* AppRepository.swift */; };
+		FA1DA00D277CAC0C0045D9C0 /* SessionPinningDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1DA00C277CAC0C0045D9C0 /* SessionPinningDelegate.swift */; };
 		FA24065927494ABF00583244 /* lab_ios_PinningApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24065827494ABF00583244 /* lab_ios_PinningApp.swift */; };
 		FA24065B27494ABF00583244 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24065A27494ABF00583244 /* ContentView.swift */; };
 		FA24065D27494AC200583244 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA24065C27494AC200583244 /* Assets.xcassets */; };
@@ -14,12 +16,13 @@
 		FA24066927494B7600583244 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066627494B7600583244 /* ContentViewModel.swift */; };
 		FA24066B27494B7600583244 /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066827494B7600583244 /* NetworkService.swift */; };
 		FA24066D2749580300583244 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066C2749580300583244 /* Utils.swift */; };
-		FA24066F27496B0000583244 /* SessionPinningDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24066E27496B0000583244 /* SessionPinningDelegate.swift */; };
 		FA24067327497BA500583244 /* certificate.der in Resources */ = {isa = PBXBuildFile; fileRef = FA24067227497BA500583244 /* certificate.der */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FA24065527494ABF00583244 /* lab.ios.Pinning.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = lab.ios.Pinning.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA1DA00A277CABCB0045D9C0 /* AppRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRepository.swift; sourceTree = "<group>"; };
+		FA1DA00C277CAC0C0045D9C0 /* SessionPinningDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionPinningDelegate.swift; sourceTree = "<group>"; };
+		FA24065527494ABF00583244 /* Pinning lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pinning lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA24065827494ABF00583244 /* lab_ios_PinningApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lab_ios_PinningApp.swift; sourceTree = "<group>"; };
 		FA24065A27494ABF00583244 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FA24065C27494AC200583244 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -28,7 +31,6 @@
 		FA24066727494B7600583244 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FA24066827494B7600583244 /* NetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		FA24066C2749580300583244 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		FA24066E27496B0000583244 /* SessionPinningDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPinningDelegate.swift; sourceTree = "<group>"; };
 		FA24067227497BA500583244 /* certificate.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = certificate.der; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -43,6 +45,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FA1DA008277CA3660045D9C0 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				FA1DA009277CA38D0045D9C0 /* Utils */,
+				FA24065A27494ABF00583244 /* ContentView.swift */,
+				FA24066627494B7600583244 /* ContentViewModel.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		FA1DA009277CA38D0045D9C0 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				FA1DA00A277CABCB0045D9C0 /* AppRepository.swift */,
+				FA24066827494B7600583244 /* NetworkService.swift */,
+				FA1DA00C277CAC0C0045D9C0 /* SessionPinningDelegate.swift */,
+				FA24066C2749580300583244 /* Utils.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		FA24064C27494ABF00583244 = {
 			isa = PBXGroup;
 			children = (
@@ -54,7 +77,7 @@
 		FA24065627494ABF00583244 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FA24065527494ABF00583244 /* lab.ios.Pinning.app */,
+				FA24065527494ABF00583244 /* Pinning lab.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,15 +85,11 @@
 		FA24065727494ABF00583244 /* lab.ios.Pinning */ = {
 			isa = PBXGroup;
 			children = (
-				FA24066727494B7600583244 /* Info.plist */,
-				FA24065A27494ABF00583244 /* ContentView.swift */,
-				FA24066627494B7600583244 /* ContentViewModel.swift */,
-				FA24065827494ABF00583244 /* lab_ios_PinningApp.swift */,
-				FA24066827494B7600583244 /* NetworkService.swift */,
-				FA24066E27496B0000583244 /* SessionPinningDelegate.swift */,
-				FA24066C2749580300583244 /* Utils.swift */,
-				FA24067227497BA500583244 /* certificate.der */,
+				FA1DA008277CA3660045D9C0 /* Sources */,
 				FA24065C27494AC200583244 /* Assets.xcassets */,
+				FA24066727494B7600583244 /* Info.plist */,
+				FA24065827494ABF00583244 /* lab_ios_PinningApp.swift */,
+				FA24067227497BA500583244 /* certificate.der */,
 				FA24065E27494AC300583244 /* Preview Content */,
 			);
 			path = lab.ios.Pinning;
@@ -101,7 +120,7 @@
 			);
 			name = lab.ios.Pinning;
 			productName = lab.ios.Pinning;
-			productReference = FA24065527494ABF00583244 /* lab.ios.Pinning.app */;
+			productReference = FA24065527494ABF00583244 /* Pinning lab.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -155,11 +174,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1DA00B277CABCB0045D9C0 /* AppRepository.swift in Sources */,
 				FA24065B27494ABF00583244 /* ContentView.swift in Sources */,
 				FA24065927494ABF00583244 /* lab_ios_PinningApp.swift in Sources */,
 				FA24066B27494B7600583244 /* NetworkService.swift in Sources */,
-				FA24066F27496B0000583244 /* SessionPinningDelegate.swift in Sources */,
 				FA24066927494B7600583244 /* ContentViewModel.swift in Sources */,
+				FA1DA00D277CAC0C0045D9C0 /* SessionPinningDelegate.swift in Sources */,
 				FA24066D2749580300583244 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -305,7 +325,7 @@
 				);
 				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = "defdev.lab-ios-Pinning";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Pinning lab";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -334,7 +354,7 @@
 				);
 				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = "defdev.lab-ios-Pinning";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Pinning lab";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

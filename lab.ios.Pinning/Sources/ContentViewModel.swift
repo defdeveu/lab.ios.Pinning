@@ -20,7 +20,7 @@ class ContentViewModel: ObservableObject {
 extension ContentViewModel {
     func plainTextConnection() {
         requestProgress = "Downloading plain text connection..."
-        process(url: "http://3.127.138.254/success.html")
+        process(url: "http://zs.labs.defdev.eu/success.html")
     }
     
     func osStoreConnection() {
@@ -30,7 +30,7 @@ extension ContentViewModel {
     
     func pinnedCertificateConnection() {
         requestProgress = "Tapped Pinned Cert.Getting content from remote server..."
-        process(url: "https://zs2.labs.defdev.eu:444/success.html")
+        process(url: "https://zs.labs.defdev.eu:444/success.html")
     }
 }
 

@@ -19,8 +19,8 @@ class ContentViewModel: ObservableObject {
 
 extension ContentViewModel {
     func plainTextConnection() {
-        requestUrl = "http://3.127.138.254/success.html"
-        requestProgress = "As calls to plain http in form 'http://3.127.138.254' cannot be catched by ATS (NSAppTransportSecurity) we have to remove such urls."
+        requestUrl = "http://zs.labs.defdev.eu/success.html"
+        requestProgress = "As calls to plain http in form 'http://zs.labs.defdev.eu' cannot be catched by ATS (NSAppTransportSecurity) we have to remove such urls."
     }
     
     func osStoreConnection() {
@@ -30,7 +30,7 @@ extension ContentViewModel {
     
     func pinnedCertificateConnection() {
         requestProgress = "Tapped Pinned Cert.Getting content from remote server..."
-        process(url: "https://zs2.labs.defdev.eu:444/success.html")
+        process(url: "https://zs.labs.defdev.eu:444/success.html")
     }
 }
 

@@ -1,0 +1,6 @@
+// Hosted defaults. Replace the zero digest after the first hosted Caddy
+// certificate is issued: make hosted-pin
+LAB_URL_SLASH = /
+LAB_HTTP_URL = http:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
+LAB_HTTPS_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
+LAB_SPKI_PINS = sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=

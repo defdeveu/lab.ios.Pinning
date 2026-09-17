@@ -1,67 +1,66 @@
 import Foundation
 import Combine
 
-class ContentViewModel: ObservableObject {
-    
-    @Published var requestUrl: String?
-    @Published var requestProgress: String?
-    @Published var isLoading: Bool = false
-    
-    private var subscriptions = Set<AnyCancellable>()
-    private let networkService: NetworkServiceProtocol
-    
-    init(networkService: NetworkServiceProtocol = AppRepository.shared.networkService) {
-        self.networkService = networkService
+@MainActor
+final class ContentViewModel: ObservableObject {
+    @Published private(set) var requestURL: String?
+    @Published private(set) var requestProgress: String?
+    @Published private(set) var isLoading = false
+
+    private let configuration: LabConfiguration
+    private let systemClient: any NetworkServiceProtocol
+    private let pinnedClient: any NetworkServiceProtocol
+    private var requestTask: Task<Void, Never>?
+
+    init(
+        configuration: LabConfiguration,
+        systemClient: any NetworkServiceProtocol,
+        pinnedClient: any NetworkServiceProtocol,
+        initialMessage: String? = nil
+    ) {
+        self.configuration = configuration
+        self.systemClient = systemClient
+        self.pinnedClient = pinnedClient
+        requestProgress = initialMessage
     }
-}
 
-// MARK: - Network requests
-
-extension ContentViewModel {
     func plainTextConnection() {
-        requestUrl = "http://zs.labs.defdev.eu/success.html"
-        requestProgress = "As calls to plain http in form 'http://zs.labs.defdev.eu' cannot be catched by ATS (NSAppTransportSecurity) we have to remove such urls."
+        process(url: configuration.httpURL, using: systemClient)
     }
-    
+
     func osStoreConnection() {
-        requestProgress = "Downloading using OS store CA validation..."
-        process(url: "https://zs.labs.defdev.eu/success.html")
+        process(url: configuration.httpsURL, using: systemClient)
     }
-    
+
     func pinnedCertificateConnection() {
-        requestProgress = "Tapped Pinned Cert.Getting content from remote server..."
-        process(url: "https://zs.labs.defdev.eu:444/success.html")
+        process(url: configuration.httpsURL, using: pinnedClient)
     }
-}
 
-// MARK: - Helpers
+    func cancelRequest() {
+        requestTask?.cancel()
+        requestTask = nil
+        isLoading = false
+    }
 
-extension ContentViewModel {
-    private func process(url urlString: String) {
-        guard let url = URL(string: urlString)
-        else {
-            requestProgress = "Invalid url"
-            return
-        }
-
-        requestUrl = url.absoluteString
-        
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringCacheData)
-        
+    private func process(url: URL, using client: any NetworkServiceProtocol) {
+        requestTask?.cancel()
+        requestURL = url.absoluteString
+        requestProgress = "Connecting…"
         isLoading = true
 
-        networkService.process(request: request)
-            .sink { [weak self] result in
-                switch result {
-                case .failure(let error):
-                    self?.requestProgress = error.localizedDescription
-                case .finished:
-                    break
-                }
-                self?.isLoading = false
-            } receiveValue: { [weak self] data in
-                self?.requestProgress = String(data: data, encoding: .utf8)
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        requestTask = Task { [weak self] in
+            do {
+                let data = try await client.process(request: request)
+                try Task.checkCancellation()
+                self?.requestProgress = String(decoding: data, as: UTF8.self)
+            } catch is CancellationError {
+                return
+            } catch {
+                self?.requestProgress = error.localizedDescription
             }
-            .store(in: &subscriptions)
+            self?.isLoading = false
+            self?.requestTask = nil
+        }
     }
 }

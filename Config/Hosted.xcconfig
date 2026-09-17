@@ -1,0 +1,4 @@
+// Hosted endpoint defaults for the classroom environment.
+LAB_URL_SLASH = /
+LAB_HTTP_URL = http:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
+LAB_HTTPS_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success

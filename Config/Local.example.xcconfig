@@ -1,0 +1,4 @@
+// Copy to Local.xcconfig and select it in Xcode for local development.
+LAB_URL_SLASH = /
+LAB_HTTP_URL = http:$(LAB_URL_SLASH)$(LAB_URL_SLASH)localhost:8080/pinning/success
+LAB_HTTPS_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)localhost:8443/pinning/success

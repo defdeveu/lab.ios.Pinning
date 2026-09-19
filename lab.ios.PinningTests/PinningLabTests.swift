@@ -1,9 +1,11 @@
 import Foundation
-import XCTest
+import Testing
 @testable import lab_ios_Pinning
 
-final class LabConfigurationTests: XCTestCase {
-    func testParsesHostedValuesAndMultiplePins() throws {
+@Suite
+struct LabConfigurationTests {
+    @Test
+    func parsesHostedValuesAndMultiplePins() throws {
         let first = "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
         let second = "sha256/AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
 
@@ -13,40 +15,49 @@ final class LabConfigurationTests: XCTestCase {
             "LabSPKIPins": "\(first), \(second)",
         ])
 
-        XCTAssertEqual(configuration.pinnedHost, "zsk.labs.def.dev")
-        XCTAssertEqual(configuration.pins.count, 2)
+        #expect(configuration.pinnedHost == "zsk.labs.def.dev")
+        #expect(configuration.pins.count == 2)
     }
 
-    func testRejectsMissingPins() {
-        XCTAssertThrowsError(try LabConfiguration.parse([
-            "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
-            "LabHTTPSURL": "https://zsk.labs.def.dev/pinning/success",
-        ])) { error in
-            XCTAssertEqual(error as? LabConfigurationError, .missingPins)
+    @Test
+    func rejectsMissingPins() {
+        #expect(throws: LabConfigurationError.missingPins) {
+            try LabConfiguration.parse([
+                "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
+                "LabHTTPSURL": "https://zsk.labs.def.dev/pinning/success",
+            ])
         }
     }
 }
 
-final class SPKIPinTests: XCTestCase {
-    func testParsesAndFormatsSHA256Pin() throws {
+@Suite
+struct SPKIPinTests {
+    @Test
+    func parsesAndFormatsSHA256Pin() throws {
         let value = "sha256/AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
-        XCTAssertEqual(try SPKIPin(value).description, value)
+        #expect(try SPKIPin(value).description == value)
     }
 
-    func testRejectsWrongDigestLength() {
-        XCTAssertThrowsError(try SPKIPin("sha256/AQ=="))
+    @Test
+    func rejectsWrongDigestLength() {
+        #expect(throws: (any Error).self) {
+            try SPKIPin("sha256/AQ==")
+        }
     }
 
-    func testP256SPKIHashVector() throws {
+    @Test
+    func p256SPKIHashVector() throws {
         let rawPublicKey = Data([0x04] + Array(repeating: 0, count: 64))
         let pin = try SPKIHasher.pin(p256PublicKey: rawPublicKey)
-        XCTAssertEqual(pin.description, "sha256/FhPubfxu6YoU7IG0Hq45pUOLUPvLv4oAgUflVyabRMs=")
+        #expect(pin.description == "sha256/FhPubfxu6YoU7IG0Hq45pUOLUPvLv4oAgUflVyabRMs=")
     }
 }
 
 @MainActor
-final class ContentViewModelTests: XCTestCase {
-    func testPinnedScenarioUsesPinnedClientAndHTTPSURL() async {
+@Suite
+struct ContentViewModelTests {
+    @Test
+    func pinnedScenarioUsesPinnedClientAndHTTPSURL() async {
         let systemClient = RecordingNetworkService(response: Data("system".utf8))
         let pinnedClient = RecordingNetworkService(response: Data("pinned".utf8))
         let configuration = LabConfiguration(
@@ -65,12 +76,12 @@ final class ContentViewModelTests: XCTestCase {
             await Task.yield()
         }
 
-        XCTAssertEqual(viewModel.requestURL, configuration.httpsURL.absoluteString)
-        XCTAssertEqual(viewModel.requestProgress, "pinned")
+        #expect(viewModel.requestURL == configuration.httpsURL.absoluteString)
+        #expect(viewModel.requestProgress == "pinned")
         let pinnedRequests = await pinnedClient.requestedURLs()
         let systemRequests = await systemClient.requestedURLs()
-        XCTAssertEqual(pinnedRequests, [configuration.httpsURL])
-        XCTAssertEqual(systemRequests, [])
+        #expect(pinnedRequests == [configuration.httpsURL])
+        #expect(systemRequests == [])
     }
 }
 

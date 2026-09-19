@@ -1,32 +1,37 @@
 import Foundation
-import XCTest
+import Testing
 @testable import lab_ios_Pinning
 
-final class LabConfigurationTests: XCTestCase {
-    func testParsesHostedURLs() throws {
+@Suite
+struct LabConfigurationTests {
+    @Test
+    func parsesHostedURLs() throws {
         let configuration = try LabConfiguration.parse([
             "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
             "LabHTTPSURL": "https://zsk.labs.def.dev/pinning/success",
         ])
 
-        XCTAssertEqual(configuration.httpURL.scheme, "http")
-        XCTAssertEqual(configuration.httpsURL.scheme, "https")
-        XCTAssertEqual(configuration.httpsURL.host(), "zsk.labs.def.dev")
+        #expect(configuration.httpURL.scheme == "http")
+        #expect(configuration.httpsURL.scheme == "https")
+        #expect(configuration.httpsURL.host() == "zsk.labs.def.dev")
     }
 
-    func testRejectsWrongHTTPScheme() {
-        XCTAssertThrowsError(try LabConfiguration.parse([
-            "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
-            "LabHTTPSURL": "http://zsk.labs.def.dev/pinning/success",
-        ])) { error in
-            XCTAssertEqual(error as? LabConfigurationError, .invalidHTTPSURL)
+    @Test
+    func rejectsWrongHTTPScheme() {
+        #expect(throws: LabConfigurationError.invalidHTTPSURL) {
+            try LabConfiguration.parse([
+                "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
+                "LabHTTPSURL": "http://zsk.labs.def.dev/pinning/success",
+            ])
         }
     }
 }
 
 @MainActor
-final class ContentViewModelTests: XCTestCase {
-    func testOSStoreScenarioUsesConfiguredHTTPSURL() async {
+@Suite
+struct ContentViewModelTests {
+    @Test
+    func osStoreScenarioUsesConfiguredHTTPSURL() async {
         let client = RecordingNetworkService(response: Data("response".utf8))
         let configuration = LabConfiguration(
             httpURL: URL(string: "http://example.test/pinning/success")!,
@@ -43,9 +48,9 @@ final class ContentViewModelTests: XCTestCase {
         }
 
         let requests = await client.requestedURLs()
-        XCTAssertEqual(viewModel.requestURL, configuration.httpsURL.absoluteString)
-        XCTAssertEqual(viewModel.requestProgress, "response")
-        XCTAssertEqual(requests, [configuration.httpsURL])
+        #expect(viewModel.requestURL == configuration.httpsURL.absoluteString)
+        #expect(viewModel.requestProgress == "response")
+        #expect(requests == [configuration.httpsURL])
     }
 }
 

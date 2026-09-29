@@ -34,11 +34,15 @@
 				<array>
 					<dict>
 						<key>SPKI-SHA256-BASE64</key>
-						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
+						<string>brzvtCELCIZUo4sD/qPX0ccRtPsd3DY6RfmxpOU9oB4=</string>
 					</dict>
 					<dict>
 						<key>SPKI-SHA256-BASE64</key>
-						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
+						<string>sCkq5UWXjg+7mKu9lMhhYF5bGLsy7VI/UNW3tccdR7w=</string>
+					</dict>
+					<dict>
+						<key>SPKI-SHA256-BASE64</key>
+						<string>diGVwiVYbubAI3RW4hB9xU8e/CH2GnkuvVFZE8zmgzI=</string>
 					</dict>
 				</array>
 			</dict>

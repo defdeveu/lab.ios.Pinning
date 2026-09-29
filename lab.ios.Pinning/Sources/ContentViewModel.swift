@@ -1,66 +1,50 @@
 import Foundation
-import Combine
+import Observation
 
 @MainActor
-final class ContentViewModel: ObservableObject {
-    @Published private(set) var requestURL: String?
-    @Published private(set) var requestProgress: String?
-    @Published private(set) var isLoading = false
+@Observable
+final class ContentViewModel {
+    private(set) var isConnecting = false
+    private(set) var result: String?
 
-    private let configuration: LabConfiguration
-    private let systemClient: any NetworkServiceProtocol
-    private let pinnedClient: any NetworkServiceProtocol
-    private var requestTask: Task<Void, Never>?
+    @ObservationIgnored private let configuration: LabConfiguration
+    @ObservationIgnored private let networkService: any NetworkServiceProtocol
 
     init(
         configuration: LabConfiguration,
-        systemClient: any NetworkServiceProtocol,
-        pinnedClient: any NetworkServiceProtocol,
-        initialMessage: String? = nil
+        networkService: any NetworkServiceProtocol,
+        initialResult: String? = nil
     ) {
         self.configuration = configuration
-        self.systemClient = systemClient
-        self.pinnedClient = pinnedClient
-        requestProgress = initialMessage
+        self.networkService = networkService
+        result = initialResult
     }
 
-    func plainTextConnection() {
-        process(url: configuration.httpURL, using: systemClient)
+    var checkedAgainstHost: String {
+        configuration.pinnedIdentity?.host ?? configuration.pinnedHost
     }
 
-    func osStoreConnection() {
-        process(url: configuration.httpsURL, using: systemClient)
+    var checkedAgainstDigests: [String] {
+        configuration.pinnedIdentity?.digests.map { "sha256/\($0)" } ?? []
     }
 
-    func pinnedCertificateConnection() {
-        process(url: configuration.httpsURL, using: pinnedClient)
-    }
+    func connect() {
+        guard !isConnecting else {
+            return
+        }
+        isConnecting = true
+        result = nil
 
-    func cancelRequest() {
-        requestTask?.cancel()
-        requestTask = nil
-        isLoading = false
-    }
-
-    private func process(url: URL, using client: any NetworkServiceProtocol) {
-        requestTask?.cancel()
-        requestURL = url.absoluteString
-        requestProgress = "Connecting…"
-        isLoading = true
-
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
-        requestTask = Task { [weak self] in
+        let request = URLRequest(url: configuration.pinningURL, cachePolicy: .reloadIgnoringLocalCacheData)
+        let networkService = self.networkService
+        Task { [weak self] in
             do {
-                let data = try await client.process(request: request)
-                try Task.checkCancellation()
-                self?.requestProgress = String(decoding: data, as: UTF8.self)
-            } catch is CancellationError {
-                return
+                let data = try await networkService.process(request: request)
+                self?.result = String(decoding: data, as: UTF8.self)
             } catch {
-                self?.requestProgress = error.localizedDescription
+                self?.result = error.localizedDescription
             }
-            self?.isLoading = false
-            self?.requestTask = nil
+            self?.isConnecting = false
         }
     }
 }

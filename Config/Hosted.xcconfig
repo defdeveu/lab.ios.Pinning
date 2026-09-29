@@ -1,10 +1,7 @@
-// Hosted defaults. Replace the zero digest after the first hosted Caddy
-// certificate is issued: make hosted-pin
+// Hosted endpoint for the classroom environment.
 LAB_URL_SLASH = /
-LAB_HTTP_URL = http:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
-LAB_HTTPS_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
-LAB_SPKI_PINS = sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+LAB_PINNING_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
 
-// A gitignored Local.xcconfig overrides the values above when it is present;
-// #include? is an optional include, so ordinary builds are unaffected.
-#include? "Local.xcconfig"
+// The pinned issuing CA set lives in Info.plist (NSAppTransportSecurity ->
+// NSPinnedDomains) and ships with placeholder digests. Refresh it from the
+// hosted material bundle before distributing the branch; see MANUAL.md.

@@ -2,54 +2,65 @@ import Foundation
 import Testing
 @testable import lab_ios_Pinning
 
-@Suite
-struct LabConfigurationTests {
-    @Test
-    func parsesHostedValuesAndMultiplePins() throws {
-        let first = "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-        let second = "sha256/AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
+private let hostedURL = "https://zsk.labs.def.dev/pinning/success"
+private let primaryPin = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+private let backupPin = "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
 
-        let configuration = try LabConfiguration.parse([
-            "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
-            "LabHTTPSURL": "https://zsk.labs.def.dev/pinning/success",
-            "LabSPKIPins": "\(first), \(second)",
-        ])
-
-        #expect(configuration.pinnedHost == "zsk.labs.def.dev")
-        #expect(configuration.pins.count == 2)
-    }
-
-    @Test
-    func rejectsMissingPins() {
-        #expect(throws: LabConfigurationError.missingPins) {
-            try LabConfiguration.parse([
-                "LabHTTPURL": "http://zsk.labs.def.dev/pinning/success",
-                "LabHTTPSURL": "https://zsk.labs.def.dev/pinning/success",
-            ])
-        }
-    }
+private func hostedValues(identities: [[String: Any]]) -> [String: Any] {
+    [
+        "LabPinningURL": hostedURL,
+        "NSAppTransportSecurity": [
+            "NSPinnedDomains": [
+                "zsk.labs.def.dev": [
+                    "NSPinnedCAIdentities": identities,
+                ],
+            ],
+        ],
+    ]
 }
 
 @Suite
-struct SPKIPinTests {
+struct LabConfigurationTests {
     @Test
-    func parsesAndFormatsSHA256Pin() throws {
-        let value = "sha256/AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
-        #expect(try SPKIPin(value).description == value)
+    func parsesThePinnedSetFromThePlistShape() throws {
+        let configuration = try LabConfiguration.parse(hostedValues(identities: [
+            ["SPKI-SHA256-BASE64": primaryPin],
+            ["SPKI-SHA256-BASE64": backupPin],
+        ]))
+
+        #expect(configuration.pinnedHost == "zsk.labs.def.dev")
+        #expect(configuration.pinnedIdentity?.digests == [primaryPin, backupPin])
     }
 
     @Test
-    func rejectsWrongDigestLength() {
-        #expect(throws: (any Error).self) {
-            try SPKIPin("sha256/AQ==")
+    func rejectsANonHTTPSPinningURL() {
+        var values = hostedValues(identities: [["SPKI-SHA256-BASE64": primaryPin]])
+        values["LabPinningURL"] = "http://zsk.labs.def.dev/pinning/success"
+        #expect(throws: LabConfigurationError.invalidPinningURL) {
+            try LabConfiguration.parse(values)
         }
     }
 
     @Test
-    func p256SPKIHashVector() throws {
-        let rawPublicKey = Data([0x04] + Array(repeating: 0, count: 64))
-        let pin = try SPKIHasher.pin(p256PublicKey: rawPublicKey)
-        #expect(pin.description == "sha256/FhPubfxu6YoU7IG0Hq45pUOLUPvLv4oAgUflVyabRMs=")
+    func rejectsAMissingEntryForTheHost() {
+        let values: [String: Any] = [
+            "LabPinningURL": hostedURL,
+            "NSAppTransportSecurity": [
+                "NSPinnedDomains": [
+                    "example.test": ["NSPinnedCAIdentities": [["SPKI-SHA256-BASE64": primaryPin]]],
+                ],
+            ],
+        ]
+        #expect(throws: LabConfigurationError.missingPinnedIdentity("zsk.labs.def.dev")) {
+            try LabConfiguration.parse(values)
+        }
+    }
+
+    @Test
+    func rejectsAnEmptyIdentityArray() {
+        #expect(throws: LabConfigurationError.missingPinnedIdentity("zsk.labs.def.dev")) {
+            try LabConfiguration.parse(hostedValues(identities: []))
+        }
     }
 }
 
@@ -57,50 +68,50 @@ struct SPKIPinTests {
 @Suite
 struct ContentViewModelTests {
     @Test
-    func pinnedScenarioUsesPinnedClientAndHTTPSURL() async {
-        let systemClient = RecordingNetworkService(response: Data("system".utf8))
-        let pinnedClient = RecordingNetworkService(response: Data("pinned".utf8))
-        let configuration = LabConfiguration(
-            httpURL: URL(string: "http://example.test/pinning/success")!,
-            httpsURL: URL(string: "https://example.test/pinning/success")!,
-            pins: []
-        )
-        let viewModel = ContentViewModel(
-            configuration: configuration,
-            systemClient: systemClient,
-            pinnedClient: pinnedClient
-        )
+    func connectShowsTheResponseAndListsThePinnedSet() async throws {
+        let viewModel = try makeViewModel(client: StubNetworkService { _ in
+            Data("Connection succeeded.".utf8)
+        })
 
-        viewModel.pinnedCertificateConnection()
-        while viewModel.isLoading {
+        viewModel.connect()
+        while viewModel.isConnecting {
             await Task.yield()
         }
 
-        #expect(viewModel.requestURL == configuration.httpsURL.absoluteString)
-        #expect(viewModel.requestProgress == "pinned")
-        let pinnedRequests = await pinnedClient.requestedURLs()
-        let systemRequests = await systemClient.requestedURLs()
-        #expect(pinnedRequests == [configuration.httpsURL])
-        #expect(systemRequests == [])
+        #expect(viewModel.result == "Connection succeeded.")
+        #expect(viewModel.checkedAgainstHost == "zsk.labs.def.dev")
+        #expect(viewModel.checkedAgainstDigests == ["sha256/\(primaryPin)", "sha256/\(backupPin)"])
+    }
+
+    @Test
+    func connectShowsThePlatformFailure() async throws {
+        let viewModel = try makeViewModel(client: StubNetworkService { _ in
+            throw URLError(.serverCertificateUntrusted)
+        })
+
+        viewModel.connect()
+        while viewModel.isConnecting {
+            await Task.yield()
+        }
+
+        #expect(viewModel.result?.isEmpty == false)
+    }
+
+    private func makeViewModel(client: any NetworkServiceProtocol) throws -> ContentViewModel {
+        ContentViewModel(
+            configuration: try LabConfiguration.parse(hostedValues(identities: [
+                ["SPKI-SHA256-BASE64": primaryPin],
+                ["SPKI-SHA256-BASE64": backupPin],
+            ])),
+            networkService: client
+        )
     }
 }
 
-private actor RecordingNetworkService: NetworkServiceProtocol {
-    private let response: Data
-    private var requests: [URL] = []
-
-    init(response: Data) {
-        self.response = response
-    }
+private struct StubNetworkService: NetworkServiceProtocol {
+    let handler: @Sendable (URLRequest) async throws -> Data
 
     func process(request: URLRequest) async throws -> Data {
-        if let url = request.url {
-            requests.append(url)
-        }
-        return response
-    }
-
-    func requestedURLs() -> [URL] {
-        requests
+        try await handler(request)
     }
 }

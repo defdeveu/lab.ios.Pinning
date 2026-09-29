@@ -1,12 +1,16 @@
 import Foundation
 
+struct PinnedIdentity: Equatable, Sendable {
+    let host: String
+    let digests: [String]
+}
+
 struct LabConfiguration: Equatable, Sendable {
-    let httpURL: URL
-    let httpsURL: URL
-    let pins: Set<SPKIPin>
+    let pinningURL: URL
+    let pinnedIdentity: PinnedIdentity?
 
     var pinnedHost: String {
-        httpsURL.host() ?? ""
+        pinningURL.host() ?? ""
     }
 
     static func load(from bundle: Bundle = .main) throws -> LabConfiguration {
@@ -14,51 +18,50 @@ struct LabConfiguration: Equatable, Sendable {
     }
 
     static func parse(_ values: [String: Any]) throws -> LabConfiguration {
-        guard let httpValue = values["LabHTTPURL"] as? String,
-              let httpURL = URL(string: httpValue),
-              httpURL.scheme == "http"
+        guard let urlValue = values["LabPinningURL"] as? String,
+              let url = URL(string: urlValue),
+              url.scheme == "https",
+              let host = url.host()
         else {
-            throw LabConfigurationError.invalidHTTPURL
+            throw LabConfigurationError.invalidPinningURL
         }
-        guard let httpsValue = values["LabHTTPSURL"] as? String,
-              let httpsURL = URL(string: httpsValue),
-              httpsURL.scheme == "https",
-              httpsURL.host() != nil
+        guard let identity = pinnedIdentity(from: values["NSAppTransportSecurity"], host: host) else {
+            throw LabConfigurationError.missingPinnedIdentity(host)
+        }
+        return LabConfiguration(pinningURL: url, pinnedIdentity: identity)
+    }
+
+    static func pinnedIdentity(from transportSecurity: Any?, host: String) -> PinnedIdentity? {
+        guard let transportSecurity = transportSecurity as? [String: Any],
+              let pinnedDomains = transportSecurity["NSPinnedDomains"] as? [String: Any],
+              let domain = pinnedDomains[host] as? [String: Any],
+              let identities = domain["NSPinnedCAIdentities"] as? [[String: Any]]
         else {
-            throw LabConfigurationError.invalidHTTPSURL
+            return nil
         }
-        let rawPins = (values["LabSPKIPins"] as? String) ?? ""
-        let pins = try Set(
-            rawPins
-                .split(separator: ",")
-                .map { try SPKIPin(String($0).trimmingCharacters(in: .whitespaces)) }
-        )
-        guard !pins.isEmpty else {
-            throw LabConfigurationError.missingPins
+        let digests = identities.compactMap { $0["SPKI-SHA256-BASE64"] as? String }
+        guard !digests.isEmpty else {
+            return nil
         }
-        return LabConfiguration(httpURL: httpURL, httpsURL: httpsURL, pins: pins)
+        return PinnedIdentity(host: host, digests: digests)
     }
 
     static let fallback = LabConfiguration(
-        httpURL: URL(string: "http://zsk.labs.def.dev/pinning/success")!,
-        httpsURL: URL(string: "https://zsk.labs.def.dev/pinning/success")!,
-        pins: []
+        pinningURL: URL(string: "https://zsk.labs.def.dev/pinning/success")!,
+        pinnedIdentity: nil
     )
 }
 
 enum LabConfigurationError: LocalizedError, Equatable {
-    case invalidHTTPURL
-    case invalidHTTPSURL
-    case missingPins
+    case invalidPinningURL
+    case missingPinnedIdentity(String)
 
     var errorDescription: String? {
         switch self {
-        case .invalidHTTPURL:
-            "LabHTTPURL must contain a valid http URL."
-        case .invalidHTTPSURL:
-            "LabHTTPSURL must contain a valid https URL."
-        case .missingPins:
-            "LabSPKIPins must contain at least one sha256/ Base64 SPKI pin."
+        case .invalidPinningURL:
+            "LabPinningURL must contain a valid https URL."
+        case let .missingPinnedIdentity(host):
+            "Info.plist must pin the issuing CA keys for \(host) under NSAppTransportSecurity."
         }
     }
 }
@@ -68,28 +71,15 @@ enum AppRepository {
     static func makeViewModel(bundle: Bundle = .main) -> ContentViewModel {
         do {
             let configuration = try LabConfiguration.load(from: bundle)
-            let systemClient = NetworkService()
-            let delegate = SessionPinningDelegate(
-                expectedHost: configuration.pinnedHost,
-                allowedPins: configuration.pins
-            )
-            let session = URLSession(
-                configuration: .ephemeral,
-                delegate: delegate,
-                delegateQueue: nil
-            )
             return ContentViewModel(
                 configuration: configuration,
-                systemClient: systemClient,
-                pinnedClient: NetworkService(session: session)
+                networkService: NetworkService()
             )
         } catch {
-            let client = NetworkService()
             return ContentViewModel(
                 configuration: .fallback,
-                systemClient: client,
-                pinnedClient: client,
-                initialMessage: "Configuration error: \(error.localizedDescription)"
+                networkService: NetworkService(),
+                initialResult: "Configuration error: \(error.localizedDescription)"
             )
         }
     }

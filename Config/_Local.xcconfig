@@ -1,0 +1,19 @@
+// Local trainer-led session against the native HiPinSeco edge.
+//
+// Updated 2026-09-29 for the reworked lab: one HTTPS endpoint, a leaf-pin
+// challenge, and a CA-pinned plist solution.
+//   make run                                  (application on 8090)
+//   go run ./cmd/hipinseco-ops edge/run       (HTTP-upgrade 8080, TLS 8443)
+//
+// Hosted.xcconfig includes this gitignored file when it is present, so no
+// Xcode configuration selection is needed; delete the file to return to the
+// hosted values.
+//
+// LAB_LEAF_PIN is the primary native edge's leaf pin, printed by
+// `make local-pin` while that edge runs. The local edge reuses its leaf key
+// across Caddy's brief internal renewals, so the value stays valid for a
+// rehearsal; a fresh CA (new machine, destroyed volumes) changes it and
+// requires re-running `make local-pin`.
+LAB_URL_SLASH = /
+LAB_PINNING_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)localhost:8443/pinning/success
+LAB_LEAF_PIN = sha256/2QJ2hC3EOLwXa6gkklyvALLNK/FVolYNTJnEJQQpeYM=

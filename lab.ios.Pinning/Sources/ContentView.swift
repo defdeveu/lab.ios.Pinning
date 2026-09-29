@@ -1,18 +1,19 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel: ContentViewModel
+    @State private var viewModel: ContentViewModel
 
     @MainActor
     init(viewModel: ContentViewModel = AppRepository.makeViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _viewModel = State(initialValue: viewModel)
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 introduction
-                scenarios
+                leafPin
+                connect
                 result
             }
             .frame(maxWidth: 720, alignment: .leading)
@@ -35,71 +36,73 @@ struct ContentView: View {
 
     private var introduction: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Compare three transport-security choices")
+            Text("Leaf pin, and what breaks it")
                 .font(.title2.bold())
-            Text("Run each request and inspect which trust decision succeeds. The pinned request should accept only the configured server key.")
+            Text("This app trusts one leaf key. Change the effective pin and watch what the pinned connection does.")
                 .foregroundStyle(.secondary)
         }
     }
 
-    private var scenarios: some View {
-        VStack(spacing: 12) {
-            scenarioButton(
-                title: "Use pinned public key",
-                systemImage: "checkmark.shield",
-                action: viewModel.pinnedCertificateConnection
-            )
-            scenarioButton(
-                title: "Use OS CA store",
-                systemImage: "network.badge.shield.half.filled",
-                action: viewModel.osStoreConnection
-            )
-            scenarioButton(
-                title: "Use plain HTTP channel",
-                systemImage: "lock.open",
-                action: viewModel.plainTextConnection
-            )
+    private var leafPin: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Effective leaf pin")
+                .font(.headline)
+            Text(viewModel.effectiveLeafPin)
+                .font(.body.monospaced())
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                .accessibilityLabel("Effective leaf pin")
+            HStack(spacing: 12) {
+                actionButton(
+                    title: "Break the pin",
+                    systemImage: "scissors",
+                    action: viewModel.breakLeafPin
+                )
+                actionButton(
+                    title: "Restore",
+                    systemImage: "arrow.uturn.backward",
+                    action: viewModel.restoreLeafPin
+                )
+            }
+            Text("Break rewrites part of the stored pin. From the comparison's point of view that is the same as the server presenting a different certificate.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
         }
     }
 
+    private var connect: some View {
+        actionButton(
+            title: viewModel.isConnecting ? "Connecting…" : "Connect",
+            systemImage: "network",
+            action: viewModel.connect,
+            disabled: viewModel.isConnecting
+        )
+    }
+
     private var result: some View {
-        GroupBox("Request result") {
-            VStack(alignment: .leading, spacing: 16) {
-                if viewModel.isLoading {
-                    ProgressView("Connecting…")
-                }
-                resultItem(title: "URL", value: viewModel.requestURL)
-                resultItem(title: "Response", value: viewModel.requestProgress)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 4)
+        GroupBox("Last attempt") {
+            Text(viewModel.result ?? "Not run yet")
+                .font(.body.monospaced())
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 4)
         }
         .accessibilityElement(children: .contain)
     }
 
-    private func scenarioButton(
+    private func actionButton(
         title: String,
         systemImage: String,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        disabled: Bool = false
     ) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
         }
         .buttonStyle(SolidButtonStyle())
-        .disabled(viewModel.isLoading)
-        .accessibilityHint("Runs this connection scenario")
-    }
-
-    private func resultItem(title: String, value: String?) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Text(value ?? "Not run yet")
-                .font(.body.monospaced())
-                .textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
+        .disabled(disabled)
     }
 }
 

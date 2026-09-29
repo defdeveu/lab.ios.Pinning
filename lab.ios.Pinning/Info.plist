@@ -20,10 +20,10 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LabHTTPURL</key>
-	<string>$(LAB_HTTP_URL)</string>
-	<key>LabHTTPSURL</key>
-	<string>$(LAB_HTTPS_URL)</string>
+	<key>LabLeafPin</key>
+	<string>$(LAB_LEAF_PIN)</string>
+	<key>LabPinningURL</key>
+	<string>$(LAB_PINNING_URL)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

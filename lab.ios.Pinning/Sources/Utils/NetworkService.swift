@@ -36,3 +36,26 @@ final class NetworkService: NetworkServiceProtocol, @unchecked Sendable {
         return data
     }
 }
+
+protocol PinnedClientMaking: Sendable {
+    func makeClient(effectivePin: SPKIPin) -> any NetworkServiceProtocol
+}
+
+struct PinnedClientFactory: PinnedClientMaking {
+    let expectedHost: String
+    let audit: PinAudit
+
+    func makeClient(effectivePin: SPKIPin) -> any NetworkServiceProtocol {
+        let delegate = SessionPinningDelegate(
+            expectedHost: expectedHost,
+            effectivePin: effectivePin,
+            audit: audit
+        )
+        let session = URLSession(
+            configuration: .ephemeral,
+            delegate: delegate,
+            delegateQueue: nil
+        )
+        return NetworkService(session: session)
+    }
+}

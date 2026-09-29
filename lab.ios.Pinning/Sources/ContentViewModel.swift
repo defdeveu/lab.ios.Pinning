@@ -1,64 +1,94 @@
-import Combine
 import Foundation
+import Observation
 
 @MainActor
-final class ContentViewModel: ObservableObject {
-    @Published private(set) var requestURL: String?
-    @Published private(set) var requestProgress: String?
-    @Published private(set) var isLoading = false
+@Observable
+final class ContentViewModel {
+    private(set) var effectiveLeafPin: String
+    private(set) var isConnecting = false
+    private(set) var result: String?
 
-    private let configuration: LabConfiguration
-    private let networkService: any NetworkServiceProtocol
-    private var requestTask: Task<Void, Never>?
+    @ObservationIgnored private let configuration: LabConfiguration
+    @ObservationIgnored private let pinnedLeaf: PinnedLeafStore
+    @ObservationIgnored private let clientFactory: any PinnedClientMaking
+    @ObservationIgnored private let audit: PinAudit
+    @ObservationIgnored private var connectTask: Task<Void, Never>?
 
     init(
         configuration: LabConfiguration,
-        networkService: any NetworkServiceProtocol,
-        initialMessage: String? = nil
+        pinnedLeaf: PinnedLeafStore,
+        clientFactory: any PinnedClientMaking,
+        audit: PinAudit,
+        initialResult: String? = nil
     ) {
         self.configuration = configuration
-        self.networkService = networkService
-        requestProgress = initialMessage
+        self.pinnedLeaf = pinnedLeaf
+        self.clientFactory = clientFactory
+        self.audit = audit
+        effectiveLeafPin = pinnedLeaf.effectivePin(baseline: configuration.baselineLeafPin)
+        result = initialResult
     }
 
-    func plainTextConnection() {
-        process(url: configuration.httpURL)
+    func restoreLeafPin() {
+        pinnedLeaf.restore()
+        effectiveLeafPin = configuration.baselineLeafPin
+        result = "Baseline leaf pin restored; Connect should succeed again."
     }
 
-    func osStoreConnection() {
-        process(url: configuration.httpsURL)
+    func breakLeafPin() {
+        var generator = SystemRandomNumberGenerator()
+        let broken = LeafPinSimulator.broken(configuration.baselineLeafPin, using: &generator)
+        pinnedLeaf.store(broken)
+        effectiveLeafPin = broken
+        result = "Effective leaf pin changed; Connect now to watch a leaf-pin mismatch."
     }
 
-    func pinnedCertificateConnection() {
-        process(url: configuration.httpsURL)
-    }
+    func connect() {
+        guard !isConnecting else {
+            return
+        }
+        guard let pin = try? SPKIPin(effectiveLeafPin) else {
+            result = "The effective leaf pin is not a valid sha256/ pin."
+            return
+        }
 
-    func cancelRequest() {
-        requestTask?.cancel()
-        requestTask = nil
-        isLoading = false
-    }
-
-    private func process(url: URL) {
-        requestTask?.cancel()
-        requestURL = url.absoluteString
-        requestProgress = "Connecting…"
-        isLoading = true
-
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
-        let networkService = self.networkService
-        requestTask = Task { [weak self] in
+        connectTask?.cancel()
+        isConnecting = true
+        result = nil
+        let request = URLRequest(url: configuration.pinningURL, cachePolicy: .reloadIgnoringLocalCacheData)
+        let client = clientFactory.makeClient(effectivePin: pin)
+        connectTask = Task { [weak self] in
             do {
-                let data = try await networkService.process(request: request)
+                let data = try await client.process(request: request)
                 try Task.checkCancellation()
-                self?.requestProgress = String(decoding: data, as: UTF8.self)
+                self?.result = String(decoding: data, as: UTF8.self)
             } catch is CancellationError {
                 return
             } catch {
-                self?.requestProgress = error.localizedDescription
+                guard let self else {
+                    return
+                }
+                if let rejection = audit.take() {
+                    result = Self.message(for: rejection, host: configuration.pinnedHost)
+                } else {
+                    result = error.localizedDescription
+                }
             }
-            self?.isLoading = false
-            self?.requestTask = nil
+            self?.isConnecting = false
+            self?.connectTask = nil
+        }
+    }
+
+    private static func message(for rejection: PinRejection, host: String) -> String {
+        switch rejection {
+        case let .hostMismatch(expected):
+            "Connection rejected: the server host is not \(expected)."
+        case .trustEvaluationFailed:
+            "Connection rejected: platform trust evaluation failed for the served chain."
+        case .unsupportedKey:
+            "Connection rejected: the served certificate does not use a supported P-256 key."
+        case .pinMismatch:
+            "Connection rejected: the served leaf key does not match the effective leaf pin. This is what a certificate change looks like to a leaf pin."
         }
     }
 }

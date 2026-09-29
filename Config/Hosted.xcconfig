@@ -1,7 +1,11 @@
 // Hosted endpoint defaults for the classroom environment.
 LAB_URL_SLASH = /
-LAB_HTTP_URL = http:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
-LAB_HTTPS_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
+LAB_PINNING_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
+
+// Placeholder until the hosted certificate exists: replace this digest with the
+// leaf pin from the hosted material bundle (or `make hosted-pin`) before
+// distributing the branch; see MANUAL.md.
+LAB_LEAF_PIN = sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
 // A gitignored Local.xcconfig overrides the values above when it is present;
 // #include? is an optional include, so ordinary builds are unaffected.

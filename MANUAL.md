@@ -11,23 +11,17 @@
 4. Run the app with `⌘R`.
 5. Run the included tests with `⌘U`.
 
-The checked-in configuration pins the hosted issuing CA set in `Info.plist`
-under `NSAppTransportSecurity`. Placeholder digests ship until the hosted
-certificate exists; this branch has no local-server mode.
+## Switching branches
 
-## Refreshing the hosted certificate material
+The project uses Xcode buildable folders, so the checked-in project file is the
+same on every branch and lists folders rather than sources: switching branches
+changes the files on disk without changing anything Xcode watches. A session
+that stays open across a switch can keep building against the branch you left
+and fail with errors about files or types that are not in the current branch.
 
-The hosted server rotates its certificate on renewal, and the pinned CA set
-must follow the authority it presents. The current material is published as a
-zip:
+Clean before rebuilding after a branch switch:
 
-1. Download `https://zsk.labs.def.dev/pinning/material.zip`.
-2. Open `pinned-ca-identities.plist` inside the zip.
-3. In `lab.ios.Pinning/Info.plist`, update the `NSPinnedCAIdentities` digests:
-   the fragment carries the presented issuer (normally the first entry); keep
-   the second entry as the backup pin and replace it when the trainer
-   distributes a backup value.
-4. Rebuild with `⌘R`; Connect should succeed again.
+Product → Clean Build Folder (⇧⌘K)
 
-No other file changes. A future tool will apply the bundle automatically; until
-then the steps above are deliberately manual.
+Closing and reopening the project re-enumerates the folders as well. If the
+stale error survives both, delete the project's DerivedData folder and rebuild.

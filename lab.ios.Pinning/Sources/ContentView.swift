@@ -40,6 +40,8 @@ struct ContentView: View {
                 .font(.title2.bold())
             Text("Transport security is narrowed in Info.plist: the system accepts a connection to \(viewModel.checkedAgainstHost) only when the chain it presents contains one of the configured authority keys.")
                 .foregroundStyle(.secondary)
+            Text("This branch asks for HTTP/3 and uses the server's HTTP/3-only route; a request that falls back to TCP is refused with status 505.")
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -77,11 +79,18 @@ struct ContentView: View {
 
     private var result: some View {
         GroupBox("Last attempt") {
-            Text(viewModel.result ?? "Not run yet")
-                .font(.body.monospaced())
-                .textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 4)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(viewModel.result ?? "Not run yet")
+                    .font(.body.monospaced())
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                if let protocolName = viewModel.negotiatedProtocol {
+                    Text("Protocol: \(protocolName)")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.top, 4)
         }
         .accessibilityElement(children: .contain)
     }

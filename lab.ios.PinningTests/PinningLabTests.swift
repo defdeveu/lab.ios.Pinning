@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import lab_ios_Pinning
 
-private let hostedURL = "https://zsk.labs.def.dev/pinning/success"
+private let hostedURL = "https://zsk.labs.def.dev/pinning/h3"
 private let primaryPin = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 private let backupPin = "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
 
@@ -29,13 +29,14 @@ struct LabConfigurationTests {
         ]))
 
         #expect(configuration.pinnedHost == "zsk.labs.def.dev")
+        #expect(configuration.pinningURL.path() == "/pinning/h3")
         #expect(configuration.pinnedIdentity?.digests == [primaryPin, backupPin])
     }
 
     @Test
     func rejectsANonHTTPSPinningURL() {
         var values = hostedValues(identities: [["SPKI-SHA256-BASE64": primaryPin]])
-        values["LabPinningURL"] = "http://zsk.labs.def.dev/pinning/success"
+        values["LabPinningURL"] = "http://zsk.labs.def.dev/pinning/h3"
         #expect(throws: LabConfigurationError.invalidPinningURL) {
             try LabConfiguration.parse(values)
         }
@@ -70,7 +71,7 @@ struct ContentViewModelTests {
     @Test
     func connectShowsTheResponseAndListsThePinnedSet() async throws {
         let viewModel = try makeViewModel(client: StubNetworkService { _ in
-            Data("Connection succeeded.".utf8)
+            NetworkResponse(body: Data("Connection succeeded.".utf8), protocolName: "h3")
         })
 
         viewModel.connect()
@@ -79,8 +80,24 @@ struct ContentViewModelTests {
         }
 
         #expect(viewModel.result == "Connection succeeded.")
+        #expect(viewModel.negotiatedProtocol == "h3")
         #expect(viewModel.checkedAgainstHost == "zsk.labs.def.dev")
         #expect(viewModel.checkedAgainstDigests == ["sha256/\(primaryPin)", "sha256/\(backupPin)"])
+    }
+
+    @Test
+    func connectShowsTheDowngradeRefusal() async throws {
+        let viewModel = try makeViewModel(client: StubNetworkService { _ in
+            throw NetworkServiceError.unexpectedStatus(505)
+        })
+
+        viewModel.connect()
+        while viewModel.isConnecting {
+            await Task.yield()
+        }
+
+        #expect(viewModel.result == "The server returned HTTP status 505.")
+        #expect(viewModel.negotiatedProtocol == nil)
     }
 
     @Test
@@ -109,9 +126,9 @@ struct ContentViewModelTests {
 }
 
 private struct StubNetworkService: NetworkServiceProtocol {
-    let handler: @Sendable (URLRequest) async throws -> Data
+    let handler: @Sendable (URLRequest) async throws -> NetworkResponse
 
-    func process(request: URLRequest) async throws -> Data {
+    func process(request: URLRequest) async throws -> NetworkResponse {
         try await handler(request)
     }
 }

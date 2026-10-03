@@ -1,7 +1,9 @@
-// Hosted endpoint for the classroom environment.
+// Hosted endpoint for the classroom environment. This branch targets the
+// HTTP/3-only route: the same host and certificate as /pinning/success, and a
+// request that falls back to TCP is refused with 505.
 LAB_URL_SLASH = /
-LAB_PINNING_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/success
+LAB_PINNING_URL = https:$(LAB_URL_SLASH)$(LAB_URL_SLASH)zsk.labs.def.dev/pinning/h3
 
 // The pinned issuing CA set lives in Info.plist (NSAppTransportSecurity ->
-// NSPinnedDomains) and ships with placeholder digests. Refresh it from the
-// hosted material bundle before distributing the branch; see MANUAL.md.
+// NSPinnedDomains) and carries the values applied 2026-09-29; refresh them from
+// the hosted material bundle when the issuing authority changes; see MANUAL.md.

@@ -11,6 +11,11 @@
 4. Run the app with `⌘R`.
 5. Run the included tests with `⌘U`.
 
+This branch targets an HTTP/3-only endpoint. A request that falls back to TCP is
+refused by the server with `505 HTTP Version Not Supported`; the app shows both
+the response and the protocol it negotiated. The Simulator negotiates HTTP/3
+here, so no device is needed.
+
 ## Switching branches
 
 The project uses Xcode buildable folders, so the checked-in project file is the
